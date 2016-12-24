@@ -1,7 +1,9 @@
-package com.hnust.lzm.scheduleview;
+package main;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.hnust.lzm.scheduleview.R;
 
 public class MainActivity extends AppCompatActivity {
 
