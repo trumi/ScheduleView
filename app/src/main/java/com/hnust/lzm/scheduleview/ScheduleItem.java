@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
@@ -31,6 +32,8 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
     public ScheduleItem(Context context) {
         this.context = context;
         rootView = new TextView(context);
+        ViewGroup.LayoutParams params=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        rootView.setLayoutParams(params);
         rootView.setLongClickable(true);
         rootView.setOnClickListener(this);
     }
@@ -65,11 +68,10 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
 
     public void setBackgroundColor(@ColorInt int colorInt) {
         this.bgColor = colorInt;
-        rootView.setBackgroundColor(bgColor);
+        rootView.setBackgroundColor(colorInt);
     }
 
     public void setTextColorResources(@ColorRes int resId) {
-        ;
         setTextColor(context.getResources().getColor(resId));
     }
 
@@ -92,7 +94,7 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
     }
 
     public void setRowSpec(int rowSpec) {
-        setRowSpec(rowSpec, 1);
+        setRowSpec(rowSpec, 2);
     }
 
     public void setRowSpec(int rowSpec, int rowSize) {
