@@ -4,7 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="100dp">
+    android:padding="0dp">
 
     <com.hnust.lzm.scheduleview.ScheduleView
         android:id="@+id/scheduleview"
