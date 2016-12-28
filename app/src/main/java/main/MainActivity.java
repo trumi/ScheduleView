@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         scheduleView = (ScheduleView) findViewById(R.id.scheduleview);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             ScheduleItem item = new ScheduleItem(this);
             item.setText("asdaff@qwqee");
             item.setBackgroundColor(0xffff00);

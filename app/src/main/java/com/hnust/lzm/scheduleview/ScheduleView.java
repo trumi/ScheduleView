@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -37,6 +38,12 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     private final int TIME_BAR_TIME_TEXT_ID = 3;
     @IdRes
     private final int SCHEDULE_LAYOUT_ID = 4;
+    @IdRes
+    private final int WEEK_BAR_LAYOUT_ID = 5;
+    @IdRes
+    private final int TIEM_BAR_LAYOUT_ID = 6;
+    @IdRes
+    private final int MONTH_TEXT_ID = 7;
 
     private final int textColor = Color.parseColor("#000000");
     private int screenHight;
@@ -118,6 +125,15 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void initWeekBar() {
+        weekBarLayout = new LinearLayout(getContext());
+        weekBarLayout.setOrientation(LinearLayout.HORIZONTAL);
+        weekBarLayout.setId(WEEK_BAR_LAYOUT_ID);
+        RelativeLayout.LayoutParams weekBarParams = new RelativeLayout.LayoutParams
+                (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        weekBarParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        weekBarParams.addRule(RelativeLayout.RIGHT_OF,MONTH_TEXT_ID);
+        weekBarParams.addRule(RelativeLayout.ALIGN_BOTTOM,MONTH_TEXT_ID);
+
         for (int i = 0; i < 7; i++) {
             WeekLabel weekLabel = new WeekLabel();
             weekLabel.setWeek("周" + weekLabels[i]);
@@ -126,8 +142,8 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             LinearLayout linearLayout = new LinearLayout(getContext());
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
+                    (ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
             linearLayout.setLayoutParams(params);
 
             TextView dateText = new TextView(getContext());
@@ -149,16 +165,25 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             weekText.setGravity(Gravity.CENTER);
             linearLayout.addView(weekText);
 
-            LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            gridLayoutParams.columnSpec = GridLayout.spec(i + 1, 1, 1f);
-            gridLayoutParams.rowSpec = GridLayout.spec(0, 1);
-            gridLayoutParams.setGravity(Gravity.FILL);
+            LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            gridLayoutParams.width = itemWidth;
             gridLayoutParams.setMargins(1, 1, 1, 1);
             weekBarLayout.addView(linearLayout, gridLayoutParams);
         }
+        this.addView(weekBarLayout, weekBarParams);
     }
 
     public void initTimeBar() {
+        timeBarLayout = new LinearLayout(getContext());
+        timeBarLayout.setOrientation(LinearLayout.VERTICAL);
+        timeBarLayout.setId(TIEM_BAR_LAYOUT_ID);
+
+        RelativeLayout.LayoutParams timeBarParams = new RelativeLayout.LayoutParams
+                (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        timeBarParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+        timeBarParams.addRule(RelativeLayout.BELOW,MONTH_TEXT_ID);
+        timeBarParams.addRule(RelativeLayout.ALIGN_RIGHT,MONTH_TEXT_ID);
+
         for (int i = 0; i < rowNum; i++) {
             TimeLabel timeLabel = new TimeLabel();
             timeLabel.setOrder(String.valueOf(i + 1));
@@ -190,14 +215,45 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
                 timeText.setVisibility(VISIBLE);
             }
 
-            GridLayout.LayoutParams gridLayoutParams = new GridLayout.LayoutParams();
-            gridLayoutParams.columnSpec = GridLayout.spec(0, 1, 1f);
-            gridLayoutParams.rowSpec = GridLayout.spec(i + 1, 1);
+            LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams
+                    (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             gridLayoutParams.height = itemHight;
-            gridLayoutParams.setGravity(Gravity.FILL);
             gridLayoutParams.setMargins(1, 1, 1, 1);
-            scheduleLayout.addView(linearLayout, gridLayoutParams);
+            timeBarLayout.addView(linearLayout, gridLayoutParams);
         }
+        this.addView(timeBarLayout, timeBarParams);
+    }
+
+    public void initScheduleView() {
+        final ScrollView scrollView = new ScrollView(getContext());
+        final HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getContext());
+        scrollView.setHorizontalScrollBarEnabled(false);
+        horizontalScrollView.setHorizontalScrollBarEnabled(false);
+
+        scheduleLayout = new GridLayout(getContext());
+        scheduleLayout.setId(SCHEDULE_LAYOUT_ID);
+        scheduleLayout.setRowCount(rowNum);
+        scheduleLayout.setColumnCount(7);
+        scheduleLayout.setOrientation(VERTICAL);
+        horizontalScrollView.addView(scheduleLayout);
+        scrollView.addView(horizontalScrollView);
+        RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.addRule(RelativeLayout.RIGHT_OF,MONTH_TEXT_ID);
+        params.addRule(RelativeLayout.BELOW,MONTH_TEXT_ID);
+        this.addView(scrollView,params);
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                timeBarLayout.scrollTo(0,scrollView.getScrollY());
+            }
+        });
+        horizontalScrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                weekBarLayout.scrollTo(horizontalScrollView.getScrollX(),0);
+            }
+        });
     }
 
     public void initMonthText() {
@@ -205,14 +261,14 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         monthText.setId(TIME_BAR_TIME_TEXT_ID);
         monthText.setTextColor(textColor);
         monthText.setText("12月");
+        monthText.setId(MONTH_TEXT_ID);
         monthText.setTextSize(13);
         monthText.setGravity(Gravity.CENTER);
-        GridLayout.LayoutParams gridLayoutParams = new GridLayout.LayoutParams();
-        gridLayoutParams.columnSpec = GridLayout.spec(0, 1, 1f);
-        gridLayoutParams.rowSpec = GridLayout.spec(0, 1);
-        gridLayoutParams.setGravity(Gravity.FILL);
-        gridLayoutParams.setMargins(1, 1, 1, 1);
-        scheduleLayout.addView(monthText, gridLayoutParams);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP,RelativeLayout.TRUE);
+        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,RelativeLayout.TRUE);
+        params.setMargins(1, 1, 1, 1);
+        this.addView(monthText, params);
     }
 
     private void addItem(ScheduleItem item) {
@@ -222,58 +278,22 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         params.rowSpec = GridLayout.spec(item.getRowSpec().getStart(), item.getRowSpec().getSize());
         params.setGravity(Gravity.FILL);
         params.setMargins(1, 1, 1, 1);
-        params.width = itemWidth - 5;
-        params.height = itemHight * item.getRowSpec().getSize();
+        params.width = itemWidth;
+        params.height = (itemHight+1) * item.getRowSpec().getSize();
         scheduleLayout.addView(item.getRootView(), params);
         item.setOnClickListener(this);
     }
 
     private void init() {
-        ScrollView scrollView=new ScrollView(getContext());
-        HorizontalScrollView horizontalScrollView=new HorizontalScrollView(getContext());
-        scheduleLayout=new GridLayout(getContext());
-        scheduleLayout.setId(SCHEDULE_LAYOUT_ID);
-        scheduleLayout.setRowCount(rowNum);
-        scheduleLayout.setColumnCount(8);
-        scheduleLayout.setOrientation(VERTICAL);
-        horizontalScrollView.addView(scheduleLayout);
-        scrollView.addView(horizontalScrollView);
-        this.addView(scrollView);
-        weekBarLayout=new LinearLayout(getContext());
-        weekBarLayout.setOrientation(LinearLayout.HORIZONTAL);
-        RelativeLayout.LayoutParams weekBarParams = new RelativeLayout.LayoutParams
-                (ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        weekBarParams.addRule(RelativeLayout.ABOVE,SCHEDULE_LAYOUT_ID);
-        weekBarParams.setMargins(10,0,0,0);
-        this.addView(weekBarLayout,weekBarParams);
-        /*
-        android.support.v7.widget.GridLayout.LayoutParams params =
-                new android.support.v7.widget.GridLayout.LayoutParams();
-        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-        setLayoutParams(params);*/
-        /*ViewTreeObserver vto = getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                screenWidth = getWidth();
-                screenHight = getHeight();
-                itemWidth = screenWidth / 8;
-                itemHight = screenHight / 11;
-                initWeekBar();
-                initTimeBar();
-                initMonthText();
-            }
-        });*/
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         this.screenWidth = display.getWidth();
         this.screenHight = display.getHeight();
         this.itemWidth = this.screenWidth / 8;
         this.itemHight = this.screenHight / 11;
+        initMonthText();
         initWeekBar();
         initTimeBar();
-        initMonthText();
+        initScheduleView();
     }
-
 }
