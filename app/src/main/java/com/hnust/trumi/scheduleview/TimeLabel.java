@@ -1,4 +1,4 @@
-package com.hnust.lzm.scheduleview;
+package com.hnust.trumi.scheduleview;
 
 /**
  * Created by lzm on 16-12-26.

@@ -1,4 +1,4 @@
-package com.hnust.lzm.scheduleview;
+package com.hnust.trumi.scheduleview;
 
 
 import android.content.Context;
@@ -8,19 +8,21 @@ import android.graphics.Point;
 import android.support.annotation.IdRes;
 import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.hnust.lzm.scheduleview.R;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.widget.GridLayout.VERTICAL;
 
@@ -30,33 +32,36 @@ import static android.widget.GridLayout.VERTICAL;
 
 public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClickListener {
     @IdRes
-    private final int WEEK_BAR_WEEK_TEXT_ID = 0;
+    protected final int WEEK_BAR_WEEK_TEXT_ID = 0;
     @IdRes
-    private final int WEEK_BAR_DATE_TEXT_ID = 1;
+    protected final int WEEK_BAR_DATE_TEXT_ID = 1;
     @IdRes
-    private final int TIME_BAR_ORDER_TEXT_ID = 2;
+    protected final int TIME_BAR_ORDER_TEXT_ID = 2;
     @IdRes
-    private final int TIME_BAR_TIME_TEXT_ID = 3;
+    protected final int TIME_BAR_TIME_TEXT_ID = 3;
     @IdRes
-    private final int SCHEDULE_LAYOUT_ID = 4;
+    protected final int SCHEDULE_LAYOUT_ID = 4;
     @IdRes
-    private final int WEEK_BAR_LAYOUT_ID = 5;
+    protected final int WEEK_BAR_LAYOUT_ID = 5;
     @IdRes
-    private final int TIME_BAR_LAYOUT_ID = 6;
+    protected final int TIME_BAR_LAYOUT_ID = 6;
     @IdRes
-    private final int MONTH_TEXT_ID = 7;
-    private final int defaultTextColor = Color.parseColor("#575757");
-    private final int defaultTextSize = 11;
-    private int itemHight;
-    private int itemWidth;
-    private int rowNum;
-    private final String[] weekLabels = {"一", "二", "三", "四", "五", "六", "日"};
-    private GridLayout scheduleLayout;
-    private LinearLayout weekBarLayout;
-    private LinearLayout timeBarLayout;
+    protected final int MONTH_TEXT_ID = 7;
+    protected final int defaultTextColor = Color.parseColor("#575757");
+    protected final int defaultTextSize = 11;
+    protected final int[] colors = {ItemColor.Amber, ItemColor.Blue, ItemColor.BlueGrey, ItemColor.Cyan, ItemColor.DeepOrange, ItemColor.DeepPurple,
+            ItemColor.Green, ItemColor.LightBlue, ItemColor.Red, ItemColor.Teal, ItemColor.Orange, ItemColor.Pink, ItemColor.Purple};
+    protected final String[] weekLabels = {"一", "二", "三", "四", "五", "六", "日"};
+    protected int itemHight;
+    protected int itemWidth;
+    protected int rowNum;
+    protected GridLayout scheduleLayout;
+    protected LinearLayout weekBarLayout;
+    protected LinearLayout timeBarLayout;
     private List<ScheduleItem> scheduleList;
     private List<TimeLabel> timeLabelList = new ArrayList<>();
     private List<WeekLabel> weekLabelList = new ArrayList<>();
+    private List<Map<String, Integer>> colorToScheduleList = new ArrayList<>();
     private OnScheduleItemClickListener mOnScheduleItemClick;
     private TypedArray typedArray;
 
@@ -92,6 +97,13 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        Log.i("heightMeasureSpec", "initItemSizeInfo: " + heightMeasureSpec);
+        Log.i("widthMeasureSpec", "initItemSizeInfo: " + widthMeasureSpec);
+    }
+
+    @Override
     public void onClick(ScheduleItem item) {
         if (mOnScheduleItemClick != null) {
             mOnScheduleItemClick.onClick(item);
@@ -100,7 +112,6 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
 
     @Override
     public void onLongClick(ScheduleItem item) {
-
         if (mOnScheduleItemClick != null) {
             mOnScheduleItemClick.onLongClick(item);
         }
@@ -122,7 +133,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         }
     }
 
-    private void initItemSizeInfo() {
+    protected void initItemSizeInfo() {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point point = new Point();
@@ -133,7 +144,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.itemHight = screenHight / 11;
     }
 
-    public void initMonthText() {
+    protected void initMonthText() {
         TextView monthText = new TextView(getContext());
         monthText.setId(TIME_BAR_TIME_TEXT_ID);
         monthText.setTextColor(defaultTextColor);
@@ -150,7 +161,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.addView(monthText, params);
     }
 
-    private void initWeekBar() {
+    protected void initWeekBar() {
         weekBarLayout = new LinearLayout(getContext());
         weekBarLayout.setOrientation(LinearLayout.HORIZONTAL);
         weekBarLayout.setId(WEEK_BAR_LAYOUT_ID);
@@ -200,7 +211,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.addView(weekBarLayout, weekBarParams);
     }
 
-    public void initTimeBar() {
+    protected void initTimeBar() {
         timeBarLayout = new LinearLayout(getContext());
         timeBarLayout.setOrientation(LinearLayout.VERTICAL);
         timeBarLayout.setId(TIME_BAR_LAYOUT_ID);
@@ -254,36 +265,16 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.addView(timeBarLayout, timeBarParams);
     }
 
-    public void initScheduleView() {
-        final ScrollView scrollView = new ScrollView(getContext());
-        final HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getContext());
-        scrollView.setHorizontalScrollBarEnabled(false);
-        horizontalScrollView.setHorizontalScrollBarEnabled(false);
-
+    protected void initScheduleView() {
         scheduleLayout = new GridLayout(getContext());
         scheduleLayout.setId(SCHEDULE_LAYOUT_ID);
         scheduleLayout.setRowCount(rowNum);
         scheduleLayout.setColumnCount(7);
         scheduleLayout.setOrientation(VERTICAL);
-        horizontalScrollView.addView(scheduleLayout);
-        scrollView.addView(horizontalScrollView);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.RIGHT_OF, MONTH_TEXT_ID);
         params.addRule(RelativeLayout.BELOW, MONTH_TEXT_ID);
-        this.addView(scrollView, params);
-
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged() {
-                timeBarLayout.scrollTo(0, scrollView.getScrollY());
-            }
-        });
-        horizontalScrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged() {
-                weekBarLayout.scrollTo(horizontalScrollView.getScrollX(), 0);
-            }
-        });
+        this.addView(scheduleLayout, params);
     }
 
     private void addItem(ScheduleItem item) {
@@ -295,11 +286,28 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         params.setMargins(1, 1, 1, 1);
         params.width = itemWidth;
         params.height = (itemHight + 1) * item.getRowSpec().getSize();
+        if (item.getBackgroundColor() == 0) {
+            int i;
+            for (i = 0; i < colorToScheduleList.size(); i++) {
+                Map<String, Integer> map = colorToScheduleList.get(i);
+                if (item.getText() != null && map.containsKey(item.getText())) {
+                    item.setBackgroundColor(map.get(item.getText()));
+                    break;
+                }
+            }
+            if (i == colorToScheduleList.size()) {
+                Map<String, Integer> map = new HashMap<>();
+                int backgroundColor = colors[colorToScheduleList.size() % colors.length];
+                map.put(item.getText(), backgroundColor);
+                colorToScheduleList.add(map);
+                item.setBackgroundColor(backgroundColor);
+            }
+        }
         scheduleLayout.addView(item.getRootView(), params);
         item.setOnClickListener(this);
     }
 
-    private void init() {
+    protected void init() {
         initItemSizeInfo();
         initMonthText();
         initWeekBar();

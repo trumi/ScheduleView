@@ -1,14 +1,16 @@
 package main;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.hnust.lzm.scheduleview.R;
-import com.hnust.lzm.scheduleview.ScheduleItem;
-import com.hnust.lzm.scheduleview.ScheduleView;
+import com.hnust.trumi.scheduleview.ScheduleItem;
+import com.hnust.trumi.scheduleview.ScheduleView;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
     private ScheduleView scheduleView;
@@ -21,8 +23,12 @@ public class MainActivity extends AppCompatActivity {
         scheduleView = (ScheduleView) findViewById(R.id.scheduleview);
         for (int i = 0; i < 30; i++) {
             ScheduleItem item = new ScheduleItem(this);
-            item.setText("asdaff@qwqee");
-            item.setBackgroundColor(0xffff00);
+            String s="毛泽东思想和中国特色社会主义理论体系概论@南校区第五教学楼4654室";
+            for (int j=0;j<i;j++){
+                s+="s";
+            }
+            item.setText(s);
+            //item.setBackgroundColor(Color.parseColor("#ff00ff"));
             item.setColumnSpec(i % 7 );
             item.setRowSpec(2 * (i / 7) );
             list.add(item);
@@ -31,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         scheduleView.setOnScheduleItemClickListener(new ScheduleView.OnScheduleItemClickListener() {
             @Override
             public void onClick(ScheduleItem item) {
-
+                Log.i("asd", "onClick: "+item.getText());
             }
 
             @Override

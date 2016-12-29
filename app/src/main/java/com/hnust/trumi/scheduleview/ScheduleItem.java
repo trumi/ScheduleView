@@ -1,6 +1,7 @@
-package com.hnust.lzm.scheduleview;
+package com.hnust.trumi.scheduleview;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.TextView;
  */
 
 public class ScheduleItem implements View.OnClickListener, View.OnLongClickListener {
-
     private int bgColor;
     private int textColor;
     private String scheduleText;
@@ -32,10 +32,12 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
     public ScheduleItem(Context context) {
         this.context = context;
         rootView = new TextView(context);
-        ViewGroup.LayoutParams params=new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         rootView.setLayoutParams(params);
         rootView.setLongClickable(true);
         rootView.setOnClickListener(this);
+        rootView.setAlpha(0.8f);
+        rootView.setTextSize(12);
     }
 
     public TextView getRootView() {
@@ -83,6 +85,7 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
     public void setText(String scheduleInfo) {
         this.scheduleText = scheduleInfo;
         rootView.setText(scheduleInfo);
+        rootView.setTextColor(Color.WHITE);
     }
 
     public void setColumnSpec(int columnSpec) {
