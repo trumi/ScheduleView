@@ -140,7 +140,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         display.getSize(point);
         int screenWidth = point.x;
         int screenHight = point.y;
-        this.itemWidth = (int) (screenWidth * 1.05) / 8;
+        this.itemWidth = (screenWidth - 14) * 2 / 15;
         this.itemHight = screenHight / 11;
     }
 
@@ -156,8 +156,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
         params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
         params.addRule(RelativeLayout.ALIGN_BOTTOM, WEEK_BAR_LAYOUT_ID);
-        params.addRule(RelativeLayout.ALIGN_RIGHT, TIME_BAR_LAYOUT_ID);
-        params.setMargins(1, 1, 1, 1);
+        params.width = itemWidth / 2;
         this.addView(monthText, params);
     }
 
@@ -220,6 +219,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
                 (ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         timeBarParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
         timeBarParams.addRule(RelativeLayout.BELOW, MONTH_TEXT_ID);
+        timeBarParams.addRule(RelativeLayout.ALIGN_RIGHT, MONTH_TEXT_ID);
 
         for (int i = 0; i < rowNum; i++) {
             TimeLabel timeLabel = new TimeLabel();
@@ -245,7 +245,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             TextView timeText = new TextView(getContext());
             timeText.setId(TIME_BAR_TIME_TEXT_ID);
             timeText.setTextColor(defaultTextColor);
-            timeText.setTextSize(defaultTextSize - 1);
+            timeText.setTextSize(defaultTextSize - 3);
             timeText.setText(timeLabelList.get(i).getTime());
             timeText.setGravity(Gravity.CENTER);
             linearLayout.addView(timeText);
@@ -259,7 +259,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams
                     (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             gridLayoutParams.height = itemHight;
-            gridLayoutParams.setMargins(1, 1, 1, 1);
+            gridLayoutParams.setMargins(0, 1, 0, 1);
             timeBarLayout.addView(linearLayout, gridLayoutParams);
         }
         this.addView(timeBarLayout, timeBarParams);
