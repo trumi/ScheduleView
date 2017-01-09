@@ -6,13 +6,16 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.support.annotation.IdRes;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -97,13 +100,6 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.i("heightMeasureSpec", "initItemSizeInfo: " + heightMeasureSpec);
-        Log.i("widthMeasureSpec", "initItemSizeInfo: " + widthMeasureSpec);
-    }
-
-    @Override
     public void onClick(ScheduleItem item) {
         if (mOnScheduleItemClick != null) {
             mOnScheduleItemClick.onClick(item);
@@ -126,10 +122,12 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     public void notifyData() {
-        if (scheduleList != null) {
+        if (scheduleList != null && scheduleLayout != null) {
+            scheduleLayout.removeAllViews();
             for (ScheduleItem item : scheduleList) {
                 addItem(item);
             }
+            Log.i("AS", "notifyData: "+scheduleLayout.getRowCount());
         }
     }
 
@@ -188,11 +186,11 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             dateText.setText(String.valueOf(i + 1) + "号");
             dateText.setGravity(Gravity.CENTER);
             linearLayout.addView(dateText);
-            if (weekLabelList.get(i).getDate() == null) {
+/*            if (weekLabelList.get(i).getDate() == null) {
                 dateText.setVisibility(GONE);
             } else {
                 dateText.setVisibility(VISIBLE);
-            }
+            }*/
 
             TextView weekText = new TextView(getContext());
             weekText.setId(WEEK_BAR_DATE_TEXT_ID);
@@ -250,11 +248,11 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             timeText.setGravity(Gravity.CENTER);
             linearLayout.addView(timeText);
             timeText.setText("24:00");
-            if (timeLabelList.get(i).getTime() == null) {
+/*            if (timeLabelList.get(i).getTime() == null) {
                 timeText.setVisibility(GONE);
             } else {
                 timeText.setVisibility(VISIBLE);
-            }
+            }*/
 
             LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams
                     (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -266,15 +264,35 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     protected void initScheduleView() {
+        final NestedScrollView scrollView = new NestedScrollView(getContext());
+        final HorizontalScrollView horizontalScrollView = new HorizontalScrollView(getContext());
+        scrollView.setHorizontalScrollBarEnabled(false);
+        horizontalScrollView.setHorizontalScrollBarEnabled(false);
+
         scheduleLayout = new GridLayout(getContext());
         scheduleLayout.setId(SCHEDULE_LAYOUT_ID);
         scheduleLayout.setRowCount(rowNum);
         scheduleLayout.setColumnCount(7);
         scheduleLayout.setOrientation(VERTICAL);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        horizontalScrollView.addView(scheduleLayout);
+        scrollView.addView(horizontalScrollView);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.RIGHT_OF, MONTH_TEXT_ID);
         params.addRule(RelativeLayout.BELOW, MONTH_TEXT_ID);
-        this.addView(scheduleLayout, params);
+        this.addView(scrollView, params);
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                timeBarLayout.scrollTo(0, scrollView.getScrollY());
+            }
+        });
+        horizontalScrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                weekBarLayout.scrollTo(horizontalScrollView.getScrollX(), 0);
+            }
+        });
     }
 
     private void addItem(ScheduleItem item) {
@@ -284,6 +302,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         params.rowSpec = GridLayout.spec(item.getRowSpec().getStart(), item.getRowSpec().getSize());
         params.setGravity(Gravity.FILL);
         params.setMargins(1, 1, 1, 1);
+        params.setGravity(1);
         params.width = itemWidth;
         params.height = (itemHight + 1) * item.getRowSpec().getSize();
         if (item.getBackgroundColor() == 0) {
