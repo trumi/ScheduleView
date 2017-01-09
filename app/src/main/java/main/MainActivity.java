@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 list.clear();
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 1; i++) {
                     ScheduleItem item = new ScheduleItem(MainActivity.this);
                     String s="毛泽东思想和中国特色社会主义理论体系概论@南校区第五教学楼4654室";
                     item.setText(s);

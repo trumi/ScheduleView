@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -58,6 +59,8 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     protected int itemHight;
     protected int itemWidth;
     protected int rowNum;
+    private final int columeNum = 7;
+    private boolean isConnerBlockExist = false;
     protected GridLayout scheduleLayout;
     protected LinearLayout weekBarLayout;
     protected LinearLayout timeBarLayout;
@@ -124,10 +127,10 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     public void notifyData() {
         if (scheduleList != null && scheduleLayout != null) {
             scheduleLayout.removeAllViews();
+            addBaseBlock();
             for (ScheduleItem item : scheduleList) {
                 addItem(item);
             }
-            Log.i("AS", "notifyData: "+scheduleLayout.getRowCount());
         }
     }
 
@@ -138,7 +141,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         display.getSize(point);
         int screenWidth = point.x;
         int screenHight = point.y;
-        this.itemWidth = (screenWidth - 14) * 2 / 15;
+        this.itemWidth = (screenWidth - 2 * columeNum) * 2 / (2 * columeNum + 1);
         this.itemHight = screenHight / 11;
     }
 
@@ -167,7 +170,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         weekBarParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
         weekBarParams.addRule(RelativeLayout.RIGHT_OF, MONTH_TEXT_ID);
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < columeNum; i++) {
             WeekLabel weekLabel = new WeekLabel();
             weekLabel.setWeek("周" + weekLabels[i]);
             weekLabelList.add(weekLabel);
@@ -272,7 +275,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         scheduleLayout = new GridLayout(getContext());
         scheduleLayout.setId(SCHEDULE_LAYOUT_ID);
         scheduleLayout.setRowCount(rowNum);
-        scheduleLayout.setColumnCount(7);
+        scheduleLayout.setColumnCount(columeNum);
         scheduleLayout.setOrientation(VERTICAL);
         horizontalScrollView.addView(scheduleLayout);
         scrollView.addView(horizontalScrollView);
@@ -296,7 +299,6 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void addItem(ScheduleItem item) {
-
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.columnSpec = GridLayout.spec(item.getColumnSpec().getStart(), item.getColumnSpec().getSize(), 1f);
         params.rowSpec = GridLayout.spec(item.getRowSpec().getStart(), item.getRowSpec().getSize());
@@ -324,6 +326,21 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         }
         scheduleLayout.addView(item.getRootView(), params);
         item.setOnClickListener(this);
+    }
+
+    /**
+     * 添加一个空的填满gridlayout的View，避免item元素不够无法滑动到指定行的情况
+     */
+    private void addBaseBlock() {
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.columnSpec = GridLayout.spec(0, columeNum, 1f);
+        params.rowSpec = GridLayout.spec(0, rowNum);
+        params.setGravity(Gravity.FILL);
+        params.setMargins(1, 1, 1, 1);
+        params.setGravity(1);
+        params.width = itemWidth * columeNum;
+        params.height = itemHight * rowNum;
+        scheduleLayout.addView(new View(scheduleLayout.getContext()), params);
     }
 
     protected void init() {

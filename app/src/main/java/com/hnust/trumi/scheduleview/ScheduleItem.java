@@ -15,6 +15,7 @@ import android.widget.TextView;
 public class ScheduleItem implements View.OnClickListener, View.OnLongClickListener {
     private int bgColor;
     private int textColor;
+    private int padding;
     private String scheduleText;
     private Context context;
     private TextView rootView;
@@ -38,6 +39,7 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
         rootView.setOnClickListener(this);
         rootView.setAlpha(0.8f);
         rootView.setTextSize(12);
+        rootView.setPadding(5, 5, 5, 5);
     }
 
     public TextView getRootView() {
@@ -75,6 +77,11 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
 
     public void setTextColorResources(@ColorRes int resId) {
         setTextColor(context.getResources().getColor(resId));
+    }
+
+    public void setPadding(int padding) {
+        this.padding = padding;
+        rootView.setPadding(padding, padding, padding, padding);
     }
 
     public void setTextColor(@ColorInt int colorInt) {
@@ -115,6 +122,10 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
         return textColor;
     }
 
+    public int getPadding() {
+        return padding;
+    }
+
     public String getText() {
         return scheduleText;
     }
@@ -126,4 +137,5 @@ public class ScheduleItem implements View.OnClickListener, View.OnLongClickListe
     public PositionInfo getRowSpec() {
         return rowPositionInfo;
     }
+
 }
