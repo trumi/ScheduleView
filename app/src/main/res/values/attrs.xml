@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ScheduleView">
-        <attr name="week" format="integer"/>
-        <attr name="day" format="integer"/>
+        <attr name="week" format="integer" />
+        <attr name="day" format="integer" />
+        <attr name="layout_mode" format="enum">
+            <enum name="tile" value="0" />
+            <enum name="big" value="1" />
+        </attr>
     </declare-styleable>
 </resources>

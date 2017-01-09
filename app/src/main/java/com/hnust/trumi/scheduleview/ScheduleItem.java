@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * Created by lzm on 16-12-23.
+ * Created by trumi on 16-12-23.
  */
 
 public class ScheduleItem implements View.OnClickListener, View.OnLongClickListener {

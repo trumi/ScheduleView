@@ -2,9 +2,11 @@
 <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sw">
         <com.hnust.trumi.scheduleview.ScheduleView
             android:id="@+id/scheduleview"
+            app:layout_mode="big"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="0dp"/>

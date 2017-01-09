@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
             list.add(item);
         }
         scheduleView.setSourceList(list);
+        scheduleView.setWeekOfToday(3);
         scheduleView.setOnScheduleItemClickListener(new ScheduleView.OnScheduleItemClickListener() {
             @Override
             public void onClick(ScheduleItem item) {

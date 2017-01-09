@@ -3,7 +3,7 @@ package com.hnust.trumi.scheduleview;
 import android.graphics.Color;
 
 /**
- * Created by lzm on 16-12-28.
+ * Created by trumi on 16-12-28.
  */
 
 public class ItemColor {

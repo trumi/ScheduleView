@@ -1,7 +1,7 @@
 package com.hnust.trumi.scheduleview;
 
 /**
- * Created by lzm on 16-12-26.
+ * Created by trumi on 16-12-26.
  */
 
 public class TimeLabel {
