@@ -56,14 +56,15 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     private final int MONTH_TEXT_ID = 7;
     private final int MODE_TILE = 0, MODE_BIG = 1;
     private final int defaultTextColor = Color.parseColor("#575757");
+    private int signColor = Color.parseColor("#9CCC65");
     private final int defaultTextSize = 11;
     private final int columeNum = 7;
     private int itemHight;
     private int itemWidth;
     private int rowNum;
     private int layoutMode;
-    //设置big模式下变大的星期
-    private int weekOfToday = 5;
+    //设置被标志的星期,0为不标志
+    private int weekOfToday = 0;
     private GridLayout scheduleLayout;
     private LinearLayout weekBarLayout;
     private LinearLayout timeBarLayout;
@@ -139,10 +140,16 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.weekOfToday = weekOfToday;
     }
 
+    public int getSignColor() {
+        return signColor;
+    }
+
+    public void setSignColor(int signColor) {
+        this.signColor = signColor;
+    }
+
     public void notifyData() {
-        if (layoutMode == MODE_BIG) {
-            initWeekBar();
-        }
+        initWeekBar();
         if (scheduleList != null && scheduleLayout != null) {
             scheduleLayout.removeAllViews();
             addBaseBlock();
@@ -184,12 +191,13 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void initWeekBar() {
-        if (weekBarLayout!=null){
+        if (weekBarLayout != null) {
             this.removeView(weekBarLayout);
         }
         weekBarLayout = new LinearLayout(getContext());
         weekBarLayout.setOrientation(LinearLayout.HORIZONTAL);
         weekBarLayout.setId(WEEK_BAR_LAYOUT_ID);
+        weekBarLayout.setPadding(0, 5, 0, 5);
         RelativeLayout.LayoutParams weekBarParams = new RelativeLayout.LayoutParams
                 (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         weekBarParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
@@ -228,9 +236,22 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             weekText.setGravity(Gravity.CENTER);
             linearLayout.addView(weekText);
 
+            if (layoutMode == MODE_TILE && i == weekOfToday - 1) {
+                View sign = new View(getContext());
+                sign.setBackgroundColor(signColor);
+                LinearLayout.LayoutParams signParams = new LinearLayout.LayoutParams
+                        (ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                signParams.height = 5;
+                signParams.width = itemWidth / 2;
+                linearLayout.addView(sign, signParams);
+
+            }
+
             LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             if (layoutMode == MODE_BIG && i == weekOfToday - 1) {
                 gridLayoutParams.width = itemWidth * 2;
+            } else if (layoutMode == MODE_BIG && weekOfToday <= 0) {
+                gridLayoutParams.width = itemWidth * 6 / 7;
             } else {
                 gridLayoutParams.width = itemWidth;
             }
@@ -241,7 +262,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void initTimeBar() {
-        if (timeBarLayout!=null){
+        if (timeBarLayout != null) {
             this.removeView(timeBarLayout);
         }
         timeBarLayout = new LinearLayout(getContext());
@@ -339,6 +360,8 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         params.setGravity(1);
         if (layoutMode == MODE_BIG && item.getColumnSpec().getStart() == weekOfToday - 1) {
             params.width = itemWidth * 2;
+        } else if (layoutMode == MODE_BIG && weekOfToday <= 0) {
+            params.width = itemWidth * 6 / 7;
         } else {
             params.width = itemWidth;
         }
@@ -375,13 +398,17 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         params.setGravity(Gravity.FILL);
         params.setMargins(1, 1, 1, 1);
         params.setGravity(1);
-        if (layoutMode==MODE_BIG){
-            params.width = itemWidth * (columeNum+1);
-        }else {
+        if (layoutMode == MODE_BIG) {
+            if (weekOfToday > 0) {
+                params.width = itemWidth * (columeNum + 1);
+            } else {
+                params.width = itemWidth * 6 / 7 * columeNum;
+            }
+        } else {
             params.width = itemWidth * columeNum;
         }
         params.height = itemHight * rowNum;
-        scheduleLayout.addView(new View(scheduleLayout.getContext()), params);
+        scheduleLayout.addView(new View(getContext()), params);
     }
 
     private void init() {

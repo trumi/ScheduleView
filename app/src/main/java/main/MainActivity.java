@@ -28,15 +28,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 list.clear();
-                for (int i = 0; i < 1; i++) {
+                for (int i = 0; i < 35; i++) {
                     ScheduleItem item = new ScheduleItem(MainActivity.this);
                     String s="毛泽东思想和中国特色社会主义理论体系概论@南校区第五教学楼4654室";
+                    for (int j=0;j<i;j++){
+                        s+="s";
+                    }
                     item.setText(s);
                     //item.setBackgroundColor(Color.parseColor("#ff00ff"));
                     item.setColumnSpec(i % 7 );
                     item.setRowSpec(2 * (i / 7) );
                     list.add(item);
                 }
+                scheduleView.setWeekOfToday(3);
                 scheduleView.notifyData();
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             list.add(item);
         }
         scheduleView.setSourceList(list);
-        scheduleView.setWeekOfToday(3);
+        //scheduleView.setWeekOfToday(3);
         scheduleView.setOnScheduleItemClickListener(new ScheduleView.OnScheduleItemClickListener() {
             @Override
             public void onClick(ScheduleItem item) {
