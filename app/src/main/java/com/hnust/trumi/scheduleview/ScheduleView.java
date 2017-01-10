@@ -149,13 +149,17 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     public void notifyData() {
-        initWeekBar();
+        updateWeekBar();
         if (scheduleList != null && scheduleLayout != null) {
             scheduleLayout.removeAllViews();
             addBaseBlock();
             for (ScheduleItem item : scheduleList) {
                 addItem(item);
             }
+        }
+        //解决在big模式下周六、日课表超出屏幕的问题
+        if (layoutMode==MODE_BIG&&weekOfToday>=6){
+            scheduleHorizontalScrollView.scrollTo(500,0);
         }
     }
 
@@ -191,9 +195,6 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void initWeekBar() {
-        if (weekBarLayout != null) {
-            this.removeView(weekBarLayout);
-        }
         weekBarLayout = new LinearLayout(getContext());
         weekBarLayout.setOrientation(LinearLayout.HORIZONTAL);
         weekBarLayout.setId(WEEK_BAR_LAYOUT_ID);
@@ -236,29 +237,59 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             weekText.setGravity(Gravity.CENTER);
             linearLayout.addView(weekText);
 
+            View sign = new View(getContext());
+            sign.setBackgroundColor(signColor);
+            LinearLayout.LayoutParams signParams = new LinearLayout.LayoutParams
+                    (ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            signParams.height = 5;
+            signParams.width = itemWidth / 2;
+            linearLayout.addView(sign, signParams);
+            sign.setVisibility(GONE);
             if (layoutMode == MODE_TILE && i == weekOfToday - 1) {
-                View sign = new View(getContext());
-                sign.setBackgroundColor(signColor);
-                LinearLayout.LayoutParams signParams = new LinearLayout.LayoutParams
-                        (ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                signParams.height = 5;
-                signParams.width = itemWidth / 2;
-                linearLayout.addView(sign, signParams);
-
+                sign.setVisibility(VISIBLE);
             }
 
-            LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams
+                    (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             if (layoutMode == MODE_BIG && i == weekOfToday - 1) {
-                gridLayoutParams.width = itemWidth * 2;
+                itemParams.width = itemWidth * 2;
             } else if (layoutMode == MODE_BIG && weekOfToday <= 0) {
-                gridLayoutParams.width = itemWidth * 6 / 7;
+                itemParams.width = itemWidth * 6 / 7;
             } else {
-                gridLayoutParams.width = itemWidth;
+                itemParams.width = itemWidth;
             }
-            gridLayoutParams.setMargins(1, 1, 1, 1);
-            weekBarLayout.addView(linearLayout, gridLayoutParams);
+            itemParams.setMargins(1, 1, 1, 1);
+            weekBarLayout.addView(linearLayout, itemParams);
         }
         this.addView(weekBarLayout, weekBarParams);
+    }
+
+    private void updateWeekBar() {
+        for (int i = 0; i < columeNum; i++) {
+            LinearLayout itemLayout = (LinearLayout) weekBarLayout.getChildAt(i);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams
+                    (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            layoutParams.setMargins(1, 1, 1, 1);
+
+            TextView dateText = (TextView) itemLayout.getChildAt(0);
+            TextView weekText = (TextView) itemLayout.getChildAt(1);
+            View sign = itemLayout.getChildAt(2);
+
+            if (layoutMode == MODE_TILE && i == weekOfToday - 1) {
+                sign.setVisibility(VISIBLE);
+            } else {
+                sign.setVisibility(GONE);
+            }
+
+            if (layoutMode == MODE_BIG && i == weekOfToday - 1) {
+                layoutParams.width = itemWidth * 2;
+            } else if (layoutMode == MODE_BIG && weekOfToday <= 0) {
+                layoutParams.width = itemWidth * 6 / 7;
+            } else {
+                layoutParams.width = itemWidth;
+            }
+            weekBarLayout.updateViewLayout(itemLayout, layoutParams);
+        }
     }
 
     private void initTimeBar() {
@@ -310,11 +341,11 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
                 timeText.setVisibility(VISIBLE);
             }*/
 
-            LinearLayout.LayoutParams gridLayoutParams = new LinearLayout.LayoutParams
+            LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams
                     (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            gridLayoutParams.height = itemHight;
-            gridLayoutParams.setMargins(0, 1, 0, 1);
-            timeBarLayout.addView(linearLayout, gridLayoutParams);
+            itemParams.height = itemHight;
+            itemParams.setMargins(0, 1, 0, 1);
+            timeBarLayout.addView(linearLayout, itemParams);
         }
         this.addView(timeBarLayout, timeBarParams);
     }
