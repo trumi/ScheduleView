@@ -9,9 +9,9 @@ import android.support.annotation.IdRes;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -158,8 +158,8 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             }
         }
         //解决在big模式下周六、日课表超出屏幕的问题
-        if (layoutMode==MODE_BIG&&weekOfToday>=6){
-            scheduleHorizontalScrollView.scrollTo(500,0);
+        if (layoutMode == MODE_BIG && weekOfToday >= 6) {
+            scheduleHorizontalScrollView.scrollTo(500, 0);
         }
     }
 
@@ -223,11 +223,11 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             dateText.setText(String.valueOf(i + 1) + "号");
             dateText.setGravity(Gravity.CENTER);
             linearLayout.addView(dateText);
-/*            if (weekLabelList.get(i).getDate() == null) {
+            if (weekLabelList.get(i).getDate() == null) {
                 dateText.setVisibility(GONE);
             } else {
                 dateText.setVisibility(VISIBLE);
-            }*/
+            }
 
             TextView weekText = new TextView(getContext());
             weekText.setId(WEEK_BAR_DATE_TEXT_ID);
@@ -335,11 +335,11 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             timeText.setGravity(Gravity.CENTER);
             linearLayout.addView(timeText);
             timeText.setText("24:00");
-/*            if (timeLabelList.get(i).getTime() == null) {
+            if (timeLabelList.get(i).getTime() == null) {
                 timeText.setVisibility(GONE);
             } else {
                 timeText.setVisibility(VISIBLE);
-            }*/
+            }
 
             LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams
                     (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -352,7 +352,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
 
     private void initScheduleView() {
         scheduleVerticalScrollView = new NestedScrollView(getContext());
-        scheduleHorizontalScrollView = new HorizontalScrollView(getContext());
+        scheduleHorizontalScrollView = new CustomHorizontalScrollView(getContext());
         scheduleVerticalScrollView.setHorizontalScrollBarEnabled(false);
         scheduleHorizontalScrollView.setHorizontalScrollBarEnabled(false);
 
@@ -448,5 +448,34 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         initWeekBar();
         initTimeBar();
         initScheduleView();
+    }
+
+    /**
+     * <p>
+     * 用于解决嵌套在viewpager中时viewpager无法滑动的bug
+     */
+
+    private class CustomHorizontalScrollView extends HorizontalScrollView {
+        public CustomHorizontalScrollView(Context context) {
+            super(context);
+        }
+
+        public CustomHorizontalScrollView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public CustomHorizontalScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent ev) {
+            if (canScrollHorizontally(-1) && canScrollHorizontally(1)) {
+                getParent().requestDisallowInterceptTouchEvent(true);
+            } else {
+                getParent().requestDisallowInterceptTouchEvent(false);
+            }
+            return super.onTouchEvent(ev);
+        }
     }
 }
