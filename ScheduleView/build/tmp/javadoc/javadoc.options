@@ -1,0 +1,11 @@
+-classpath '/home/lzm/android-sdk/platforms/android-25/android.jar'
+-d '/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/build/docs/javadoc'
+-doctitle 'ScheduleView 0.1.0 API'
+-quiet 
+-windowtitle 'ScheduleView 0.1.0 API'
+'/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/main/java/com/hnust/trumi/scheduleview/TimeLabel.java'
+'/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/main/java/com/hnust/trumi/scheduleview/ScheduleItem.java'
+'/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/main/java/com/hnust/trumi/scheduleview/ScheduleView.java'
+'/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/main/java/com/hnust/trumi/scheduleview/ItemColor.java'
+'/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/main/java/com/hnust/trumi/scheduleview/WeekLabel.java'
+'/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/main/java/com/hnust/trumi/scheduleview/PositionInfo.java'

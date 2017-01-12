@@ -24,27 +24,27 @@ public final class R {
 		public static int useDefaultMargins = 0x7f0100ac;
 	}
 	public static final class dimen {
-		public static int default_gap = 0x7f070050;
+		public static int default_gap = 0x7f060050;
 	}
 	public static final class id {
-		public static int alignBounds = 0x7f0b001c;
-		public static int alignMargins = 0x7f0b001d;
-		public static int bottom = 0x7f0b001e;
-		public static int center = 0x7f0b001f;
-		public static int center_horizontal = 0x7f0b0020;
-		public static int center_vertical = 0x7f0b0021;
-		public static int clip_horizontal = 0x7f0b0022;
-		public static int clip_vertical = 0x7f0b0023;
-		public static int end = 0x7f0b0024;
-		public static int fill = 0x7f0b0025;
-		public static int fill_horizontal = 0x7f0b0026;
-		public static int fill_vertical = 0x7f0b0027;
-		public static int horizontal = 0x7f0b001a;
-		public static int left = 0x7f0b0028;
-		public static int right = 0x7f0b0029;
-		public static int start = 0x7f0b002a;
-		public static int top = 0x7f0b002b;
-		public static int vertical = 0x7f0b001b;
+		public static int alignBounds = 0x7f0a001c;
+		public static int alignMargins = 0x7f0a001d;
+		public static int bottom = 0x7f0a001e;
+		public static int center = 0x7f0a001f;
+		public static int center_horizontal = 0x7f0a0020;
+		public static int center_vertical = 0x7f0a0021;
+		public static int clip_horizontal = 0x7f0a0022;
+		public static int clip_vertical = 0x7f0a0023;
+		public static int end = 0x7f0a0024;
+		public static int fill = 0x7f0a0025;
+		public static int fill_horizontal = 0x7f0a0026;
+		public static int fill_vertical = 0x7f0a0027;
+		public static int horizontal = 0x7f0a001a;
+		public static int left = 0x7f0a0028;
+		public static int right = 0x7f0a0029;
+		public static int start = 0x7f0a002a;
+		public static int top = 0x7f0a002b;
+		public static int vertical = 0x7f0a001b;
 	}
 	public static final class styleable {
 		public static int[] GridLayout = { 0x7f0100a9, 0x7f0100aa, 0x7f0100ab, 0x7f0100ac, 0x7f0100ad, 0x7f0100ae, 0x7f0100af };
