@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/main/assets"/><source path="/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/build/generated/assets/shaders/debug"/></dataSet><dataSet config="debug"><source path="/home/lzm/AndroidStudioProjects/ScheduleView/ScheduleView/src/debug/assets"/></dataSet></merger>
