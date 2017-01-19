@@ -9,6 +9,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -130,6 +131,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.scheduleList = list;
     }
 
+
     public int getWeekOfToday() {
         return weekOfToday;
     }
@@ -148,6 +150,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
 
     public void notifyData() {
         updateWeekBar();
+        updateTimeBar();
         if (scheduleList != null && scheduleLayout != null) {
             scheduleLayout.removeAllViews();
             addBaseBlock();
@@ -242,7 +245,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             signParams.height = 5;
             signParams.width = itemWidth / 2;
             linearLayout.addView(sign, signParams);
-            sign.setVisibility(GONE);
+            sign.setVisibility(INVISIBLE);
             if (layoutMode == MODE_TILE && i == weekOfToday - 1) {
                 sign.setVisibility(VISIBLE);
             }
@@ -263,30 +266,44 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void updateWeekBar() {
-        for (int i = 0; i < columeNum; i++) {
-            LinearLayout itemLayout = (LinearLayout) weekBarLayout.getChildAt(i);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams
-                    (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            layoutParams.setMargins(1, 1, 1, 1);
+        try {
+            for (int i = 0; i < weekLabelList.size(); i++) {
+                LinearLayout itemLayout = (LinearLayout) weekBarLayout.getChildAt(i);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams
+                        (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                //layoutParams.setMargins(1, 1, 1, 1);
 
-            TextView dateText = (TextView) itemLayout.getChildAt(0);
-            TextView weekText = (TextView) itemLayout.getChildAt(1);
-            View sign = itemLayout.getChildAt(2);
+                TextView dateText = (TextView) itemLayout.getChildAt(0);
+                if (weekLabelList.get(i).getDate() != null) {
+                    dateText.setText(weekLabelList.get(i).getDate());
+                }
 
-            if (layoutMode == MODE_TILE && i == weekOfToday - 1) {
-                sign.setVisibility(VISIBLE);
-            } else {
-                sign.setVisibility(GONE);
+                TextView weekText = (TextView) itemLayout.getChildAt(1);
+                if (weekLabelList.get(i).getWeek() != null) {
+                    weekText.setText(weekLabelList.get(i).getWeek());
+                }
+
+                View sign = itemLayout.getChildAt(2);
+
+                if (layoutMode == MODE_TILE && i == weekOfToday - 1) {
+                    sign.setVisibility(VISIBLE);
+                } else {
+                    sign.setVisibility(INVISIBLE);
+                }
+
+                if (layoutMode == MODE_BIG && i == weekOfToday - 1) {
+                    layoutParams.width = itemWidth * 2;
+                } else if (layoutMode == MODE_BIG && weekOfToday <= 0) {
+                    layoutParams.width = itemWidth * 6 / 7;
+                } else {
+                    layoutParams.width = itemWidth;
+                }
+                weekBarLayout.updateViewLayout(itemLayout, layoutParams);
             }
-
-            if (layoutMode == MODE_BIG && i == weekOfToday - 1) {
-                layoutParams.width = itemWidth * 2;
-            } else if (layoutMode == MODE_BIG && weekOfToday <= 0) {
-                layoutParams.width = itemWidth * 6 / 7;
-            } else {
-                layoutParams.width = itemWidth;
-            }
-            weekBarLayout.updateViewLayout(itemLayout, layoutParams);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.e("updateWeekBar", "Too many items ! The number of items can not be more than the number of week");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -346,6 +363,28 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             timeBarLayout.addView(linearLayout, itemParams);
         }
         this.addView(timeBarLayout, timeBarParams);
+    }
+
+    private void updateTimeBar() {
+        try {
+            for (int i = 0; i < timeLabelList.size(); i++) {
+                LinearLayout itemLayout = (LinearLayout) timeBarLayout.getChildAt(i);
+
+                TextView orderText = (TextView) itemLayout.getChildAt(0);
+                if (timeLabelList.get(i).getOrder() != null) {
+                    orderText.setText(timeLabelList.get(i).getOrder());
+                }
+
+                TextView timeText = (TextView) itemLayout.getChildAt(1);
+                if (timeLabelList.get(i).getTime() != null) {
+                    timeText.setText(timeLabelList.get(i).getTime());
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.e("updateTimeBar", "Too many items ! The number of items can not be more than the number of time");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initScheduleView() {
@@ -454,6 +493,8 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
      */
 
     private class CustomHorizontalScrollView extends HorizontalScrollView {
+        private float oldY, newY, originY;
+
         public CustomHorizontalScrollView(Context context) {
             super(context);
         }
@@ -471,7 +512,30 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             if (canScrollHorizontally(-1) && canScrollHorizontally(1)) {
                 getParent().requestDisallowInterceptTouchEvent(true);
             } else {
-                getParent().requestDisallowInterceptTouchEvent(false);
+                switch (ev.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        originY = oldY = ev.getRawY();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        newY = ev.getRawY();
+                        //左划与右划
+                        if (oldY >= newY && !canScrollHorizontally(-1) || oldY < newY && !canScrollHorizontally(1)) {
+                            getParent().requestDisallowInterceptTouchEvent(true);
+                        } else {
+                            getParent().requestDisallowInterceptTouchEvent(false);
+                        }
+                        oldY = newY;
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        newY = ev.getRawY();
+                        //左划与右划
+                        if (originY >= newY && !canScrollHorizontally(-1) || originY < newY && !canScrollHorizontally(1)) {
+                            getParent().requestDisallowInterceptTouchEvent(true);
+                        } else {
+                            getParent().requestDisallowInterceptTouchEvent(false);
+                        }
+                        break;
+                }
             }
             return super.onTouchEvent(ev);
         }
