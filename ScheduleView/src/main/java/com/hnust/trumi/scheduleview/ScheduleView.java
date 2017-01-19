@@ -271,7 +271,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
                 LinearLayout itemLayout = (LinearLayout) weekBarLayout.getChildAt(i);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams
                         (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                //layoutParams.setMargins(1, 1, 1, 1);
+                layoutParams.setMargins(1, 1, 1, 1);
 
                 TextView dateText = (TextView) itemLayout.getChildAt(0);
                 if (weekLabelList.get(i).getDate() != null) {
