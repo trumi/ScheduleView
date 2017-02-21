@@ -34,6 +34,9 @@ import static android.widget.GridLayout.VERTICAL;
  */
 
 public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClickListener {
+    public static final int DEFAULT_COLUMN_NUM = 7;
+    public static final int DEFAULT_ROW_NUM = 10;
+
     private final int[] colors = {ItemColor.Amber, ItemColor.Blue, ItemColor.BlueGrey, ItemColor.Cyan, ItemColor.DeepOrange, ItemColor.DeepPurple,
             ItemColor.Green, ItemColor.LightBlue, ItemColor.Red, ItemColor.Teal, ItemColor.Orange, ItemColor.Pink, ItemColor.Purple};
     private final String[] weekLabels = {"一", "二", "三", "四", "五", "六", "日"};
@@ -85,7 +88,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     public ScheduleView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         typedArray = context.obtainStyledAttributes(attrs, R.styleable.ScheduleView, defStyle, 0);
-        rowNum = typedArray.getInt(R.styleable.ScheduleView_day, 10);
+        rowNum = typedArray.getInt(R.styleable.ScheduleView_day, DEFAULT_ROW_NUM);
         layoutMode = typedArray.getInt(R.styleable.ScheduleView_layout_mode, 0);
         typedArray.recycle();
         init();
@@ -94,7 +97,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     public ScheduleView(Context context, AttributeSet attrs) {
         super(context, attrs);
         typedArray = context.obtainStyledAttributes(attrs, R.styleable.ScheduleView);
-        rowNum = typedArray.getInt(R.styleable.ScheduleView_day, 10);
+        rowNum = typedArray.getInt(R.styleable.ScheduleView_day, DEFAULT_ROW_NUM);
         layoutMode = typedArray.getInt(R.styleable.ScheduleView_layout_mode, 0);
         typedArray.recycle();
         init();
@@ -179,6 +182,24 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         }
     }
 
+    private void initWeekLabelList() {
+        for (int i = 0; i < columnNum; i++) {
+            WeekLabel weekLabel = new WeekLabel();
+            weekLabel.setWeek("周" + weekLabels[i]);
+            weekLabel.setDate(String.valueOf(i + 1) + "号");
+            weekLabelList.add(weekLabel);
+        }
+    }
+
+    private void initTimeLabelList() {
+        for (int i = 0; i < rowNum; i++) {
+            TimeLabel timeLabel = new TimeLabel();
+            timeLabel.setOrder(String.valueOf(i + 1));
+            timeLabel.setTime("24:00");
+            timeLabelList.add(timeLabel);
+        }
+    }
+
     private void initMonthText() {
         TextView monthText = new TextView(getContext());
         monthText.setId(TIME_BAR_TIME_TEXT_ID);
@@ -205,6 +226,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void initWeekBar() {
+        initWeekLabelList();
         weekBarLayout = new LinearLayout(getContext());
         weekBarLayout.setOrientation(LinearLayout.HORIZONTAL);
         weekBarLayout.setId(WEEK_BAR_LAYOUT_ID);
@@ -215,10 +237,6 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         weekBarParams.addRule(RelativeLayout.RIGHT_OF, MONTH_TEXT_ID);
 
         for (int i = 0; i < columnNum; i++) {
-            WeekLabel weekLabel = new WeekLabel();
-            weekLabel.setWeek("周" + weekLabels[i]);
-            weekLabelList.add(weekLabel);
-
             LinearLayout linearLayout = new LinearLayout(getContext());
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.setGravity(Gravity.CENTER);
@@ -230,7 +248,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             dateText.setId(WEEK_BAR_WEEK_TEXT_ID);
             dateText.setTextColor(defaultTextColor);
             dateText.setTextSize(defaultTextSize);
-            dateText.setText(String.valueOf(i + 1) + "号");
+            dateText.setText(weekLabelList.get(i).getDate());
             dateText.setGravity(Gravity.CENTER);
             linearLayout.addView(dateText);
             if (weekLabelList.get(i).getDate() == null) {
@@ -277,15 +295,21 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     public void setWeekBar(List<WeekLabel> list) {
         if (list != null && list.size() != columnNum) {
             this.weekLabelList = list;
+            for (int i = 0; i < weekLabelList.size(); i++) {
+                WeekLabel item = weekLabelList.get(i);
+                if (item.getWeek() == null) {
+                    item.setWeek("周" + weekLabels[i]);
+                }
+            }
             updateWeekBar();
-        }else{
+        } else {
             Log.e("setWeekBar", "the size of the list must be the same as the column");
         }
     }
 
     private void updateWeekBar() {
         try {
-            for (int i = 0; i < weekLabelList.size(); i++) {
+            for (int i = 0; i < columnNum; i++) {
                 LinearLayout itemLayout = (LinearLayout) weekBarLayout.getChildAt(i);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams
                         (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -326,6 +350,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     }
 
     private void initTimeBar() {
+        initTimeLabelList();
         if (timeBarLayout != null) {
             this.removeView(timeBarLayout);
         }
@@ -340,9 +365,6 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         timeBarParams.addRule(RelativeLayout.ALIGN_RIGHT, MONTH_TEXT_ID);
 
         for (int i = 0; i < rowNum; i++) {
-            TimeLabel timeLabel = new TimeLabel();
-            timeLabel.setOrder(String.valueOf(i + 1));
-            timeLabelList.add(timeLabel);
 
             LinearLayout linearLayout = new LinearLayout(getContext());
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -367,7 +389,6 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             timeText.setText(timeLabelList.get(i).getTime());
             timeText.setGravity(Gravity.CENTER);
             linearLayout.addView(timeText);
-            timeText.setText("24:00");
             if (timeLabelList.get(i).getTime() == null) {
                 timeText.setVisibility(GONE);
             } else {
@@ -386,6 +407,12 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     public void setTimeBar(List<TimeLabel> list) {
         if (list != null && list.size() != rowNum) {
             this.timeLabelList = list;
+            for (int i = 0; i < timeLabelList.size(); i++) {
+                TimeLabel item = timeLabelList.get(i);
+                if (item.getOrder() == null) {
+                    item.setOrder(String.valueOf(i + 1));
+                }
+            }
             updateTimeBar();
         } else {
             Log.e("setTimeBar", "the size of the list must be the same as the row");
@@ -394,7 +421,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
 
     private void updateTimeBar() {
         try {
-            for (int i = 0; i < timeLabelList.size(); i++) {
+            for (int i = 0; i < rowNum; i++) {
                 LinearLayout itemLayout = (LinearLayout) timeBarLayout.getChildAt(i);
 
                 TextView orderText = (TextView) itemLayout.getChildAt(0);
