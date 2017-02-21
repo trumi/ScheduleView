@@ -57,7 +57,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
     private final int defaultTextColor = Color.parseColor("#575757");
     private int signColor = Color.parseColor("#9CCC65");
     private final int defaultTextSize = 11;
-    private final int columeNum = 7;
+    private final int columnNum = 7;
     private int itemHight;
     private int itemWidth;
     private int rowNum;
@@ -173,9 +173,9 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         int screenHight = point.y;
         this.itemHight = screenHight / 11;
         if (layoutMode == MODE_TILE) {
-            this.itemWidth = (screenWidth - 2 * columeNum) * 2 / (2 * columeNum + 1);
+            this.itemWidth = (screenWidth - 2 * columnNum) * 2 / (2 * columnNum + 1);
         } else if (layoutMode == MODE_BIG) {
-            this.itemWidth = (screenWidth - 2 * (columeNum - 1)) * 2 / (2 * (columeNum - 1) + 1);
+            this.itemWidth = (screenWidth - 2 * (columnNum - 1)) * 2 / (2 * (columnNum - 1) + 1);
         }
     }
 
@@ -195,6 +195,15 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.addView(monthText, params);
     }
 
+    public void setMonthText(int month) {
+        TextView monthText = (TextView) this.findViewById(TIME_BAR_TIME_TEXT_ID);
+        if (month < 0 && month < 13) {
+            monthText.setText(String.valueOf(month) + "月");
+        } else {
+            Log.e("updateMonthText", "num of the month was illegal");
+        }
+    }
+
     private void initWeekBar() {
         weekBarLayout = new LinearLayout(getContext());
         weekBarLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -205,7 +214,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         weekBarParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
         weekBarParams.addRule(RelativeLayout.RIGHT_OF, MONTH_TEXT_ID);
 
-        for (int i = 0; i < columeNum; i++) {
+        for (int i = 0; i < columnNum; i++) {
             WeekLabel weekLabel = new WeekLabel();
             weekLabel.setWeek("周" + weekLabels[i]);
             weekLabelList.add(weekLabel);
@@ -263,6 +272,15 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
             weekBarLayout.addView(linearLayout, itemParams);
         }
         this.addView(weekBarLayout, weekBarParams);
+    }
+
+    public void setWeekBar(List<WeekLabel> list) {
+        if (list != null && list.size() != columnNum) {
+            this.weekLabelList = list;
+            updateWeekBar();
+        }else{
+            Log.e("setWeekBar", "the size of the list must be the same as the column");
+        }
     }
 
     private void updateWeekBar() {
@@ -365,6 +383,15 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         this.addView(timeBarLayout, timeBarParams);
     }
 
+    public void setTimeBar(List<TimeLabel> list) {
+        if (list != null && list.size() != rowNum) {
+            this.timeLabelList = list;
+            updateTimeBar();
+        } else {
+            Log.e("setTimeBar", "the size of the list must be the same as the row");
+        }
+    }
+
     private void updateTimeBar() {
         try {
             for (int i = 0; i < timeLabelList.size(); i++) {
@@ -396,7 +423,7 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
         scheduleLayout = new GridLayout(getContext());
         scheduleLayout.setId(SCHEDULE_LAYOUT_ID);
         scheduleLayout.setRowCount(rowNum);
-        scheduleLayout.setColumnCount(columeNum);
+        scheduleLayout.setColumnCount(columnNum);
         scheduleLayout.setOrientation(VERTICAL);
         scheduleHorizontalScrollView.addView(scheduleLayout);
         scheduleVerticalScrollView.addView(scheduleHorizontalScrollView);
@@ -461,19 +488,19 @@ public class ScheduleView extends RelativeLayout implements ScheduleItem.OnClick
 
     private void addBaseBlock() {
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-        params.columnSpec = GridLayout.spec(0, columeNum, 1f);
+        params.columnSpec = GridLayout.spec(0, columnNum, 1f);
         params.rowSpec = GridLayout.spec(0, rowNum);
         params.setGravity(Gravity.FILL);
         params.setMargins(1, 1, 1, 1);
         params.setGravity(1);
         if (layoutMode == MODE_BIG) {
             if (weekOfToday > 0) {
-                params.width = itemWidth * (columeNum + 1);
+                params.width = itemWidth * (columnNum + 1);
             } else {
-                params.width = itemWidth * 6 / 7 * columeNum;
+                params.width = itemWidth * 6 / 7 * columnNum;
             }
         } else {
-            params.width = itemWidth * columeNum;
+            params.width = itemWidth * columnNum;
         }
         params.height = itemHight * rowNum;
         scheduleLayout.addView(new View(getContext()), params);
